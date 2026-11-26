@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مِعيار | مساعد القراءة السياقي لطلاب الشريعة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-logo" aria-hidden="true">مِ</span>
+        <div>
+          <h1 id="app-title">مِعيار (Mi'yar)</h1>
+          <p id="app-subtitle" class="subtitle">مساعد القراءة والفهم السياقي للنصوص الشرعية</p>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Main Navigation">
+        <button type="button" class="nav-btn active" data-view="home" id="nav-home">الرئيسية / الرفع</button>
+        <button type="button" class="nav-btn" data-view="reading" id="nav-reading">صفحة القراءة</button>
+        <button type="button" class="nav-btn" data-view="vocabulary" id="nav-vocabulary">
+          دفتر المفردات <span id="vocab-badge" class="badge">0</span>
+        </button>
+        <button type="button" class="lang-btn" id="lang-toggle">English</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div id="global-alert" class="alert hidden" role="alert"></div>
+
+    <!-- VIEW 1: HOME / UPLOAD -->
+    <section id="view-home" class="view-section active">
+      <div class="card upload-card">
+        <h2 id="upload-heading">رفع أو تصوير صفحة من الكتاب الدراسي</h2>
+        <p id="upload-desc" class="muted-text">
+          ارفع صورة واضحة لصفحة مطبوعة بالعربية (JPEG, PNG, WebP أو PDF من صفحة واحدة بحد أقصى 10MB) لاستخراج النص وشرح المصطلحات الشرعية.
+        </p>
+
+        <div id="drop-zone" class="drop-zone" tabindex="0">
+          <p id="drop-text">اسحب الصفحة وأفلتها هنا، أو اختر ملفاً من جهازك</p>
+          <div class="upload-actions">
+            <label for="file-input" class="btn btn-secondary" id="btn-choose-file">اختيار ملف</label>
+            <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" hidden />
+            <button type="button" class="btn btn-secondary" id="btn-open-camera">فتح الكاميرا</button>
+          </div>
+        </div>
+
+        <!-- Camera Box -->
+        <div id="camera-box" class="camera-box hidden">
+          <video id="camera-video" autoplay playsinline></video>
+          <div class="camera-controls">
+            <button type="button" class="btn btn-primary" id="btn-capture">التقاط الصورة</button>
+            <button type="button" class="btn btn-secondary" id="btn-close-camera">إغلاق الكاميرا</button>
+          </div>
+        </div>
+
+        <!-- Preview Box -->
+        <div id="preview-box" class="preview-box hidden">
+          <h3 id="preview-heading">معاينة الصفحة المختارة</h3>
+          <img id="preview-image" alt="معاينة الصفحة" />
+          <p id="preview-meta" class="muted-text"></p>
+          <button type="button" class="btn btn-primary btn-large" id="btn-analyze">تحليل الصفحة الآن</button>
+        </div>
+
+        <!-- Built-in Academic Sample Pages for Quick Verification -->
+        <div class="samples-box">
+          <h3 id="samples-heading">نماذج اختبار سريعة (حسب خطة التحقق):</h3>
+          <div class="samples-grid">
+            <button type="button" class="sample-btn" data-sample="fiqh">نموذج فقه (الطهارة والحدث)</button>
+            <button type="button" class="sample-btn" data-sample="usul">نموذج أصول الفقه (القياس)</button>
+            <button type="button" class="sample-btn" data-sample="blurry">اختبار سلبي: صورة غير واضحة</button>
+            <button type="button" class="sample-btn" data-sample="non_arabic">اختبار سلبي: نص غير عربي</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: READING & QUIZ -->
+    <section id="view-reading" class="view-section hidden">
+      <div id="reading-empty" class="card">
+        <p id="reading-empty-text">لم يتم تحليل أي صفحة بعد. يرجى رفع صفحة من تبويب الرئيسية.</p>
+      </div>
+
+      <div id="reading-workspace" class="hidden">
+        <article class="card reading-card">
+          <div class="reading-toolbar">
+            <h2 id="reading-heading">النص المستخرج والمصطلحات الشرعية</h2>
+            <span id="ttl-notice" class="ttl-badge">يُحذف الملف المؤقت تلقائياً خلال 15 دقيقة</span>
+          </div>
+          <div id="extracted-text-container" class="reading-body" lang="ar" dir="rtl"></div>
+        </article>
+
+        <!-- Contextual Popover Modal -->
+        <div id="term-popover" class="popover hidden" role="dialog" aria-labelledby="popover-term">
+          <div class="popover-header">
+            <strong id="popover-term"></strong>
+            <button type="button" id="popover-close" class="icon-close" aria-label="إغلاق">×</button>
+          </div>
+          <p id="popover-definition" class="popover-def"></p>
+          <p id="popover-status" class="popover-status hidden"></p>
+          <div class="popover-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-play-audio">🔊 استماع للنطق</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-save-term">حفظ في الدفتر</button>
+          </div>
+        </div>
+
+        <!-- Comprehension Quiz -->
+        <section id="quiz-section" class="card quiz-card hidden">
+          <h2 id="quiz-heading">اختبار الفهم السريع</h2>
+          <form id="quiz-form">
+            <div id="quiz-questions-container"></div>
+            <div class="quiz-footer">
+              <button type="submit" class="btn btn-primary" id="btn-check-answers">التحقق من الإجابات</button>
+              <span id="quiz-score" class="score-display hidden"></span>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- VIEW 3: VOCABULARY NOTEBOOK -->
+    <section id="view-vocabulary" class="view-section hidden">
+      <div class="card">
+        <h2 id="vocab-heading">دفتر المفردات الشخصي</h2>
+        <p id="vocab-privacy-note" class="muted-text">يتم حفظ مفرداتك محلياً في متصفحك فقط دون إنشاء حسابات.</p>
+        <div id="vocab-empty" class="empty-state">
+          <p id="vocab-empty-text">لا توجد مصطلحات محفوظة حالياً. انقر على أي مصطلح مظلل في صفحة القراءة لحفظه هنا.</p>
+        </div>
+        <ul id="vocab-list" class="vocab-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="PresentationUI.js"></script>
+</body>
+</html>
